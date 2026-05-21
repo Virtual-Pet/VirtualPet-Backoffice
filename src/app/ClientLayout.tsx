@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -20,6 +20,7 @@ export default function ManagerLayout({
     if (!token && pathname !== "/login") {
       router.replace("/login");
     } else {
+      // eslint-disable-next-line
       setReady(true);
     }
   }, [pathname, router]);

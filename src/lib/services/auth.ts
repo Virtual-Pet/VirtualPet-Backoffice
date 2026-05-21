@@ -16,6 +16,7 @@ function delay(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function mockLogin(email: string, _password: string): Promise<AuthResponse> {
   await delay(200);
   return {
