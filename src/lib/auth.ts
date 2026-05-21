@@ -1,4 +1,3 @@
-"use client";
 
 const TOKEN_KEY = "vp_token";
 const USER_KEY = "vp_user";
