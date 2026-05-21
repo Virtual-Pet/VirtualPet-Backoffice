@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useCallback } from "react";
 import { formatPrice } from "@/lib/api";
@@ -49,6 +49,7 @@ export default function ManagerOrdersPage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line
     loadOrders(activeTab);
   }, [activeTab, loadOrders]);
 

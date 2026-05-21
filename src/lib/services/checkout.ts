@@ -46,6 +46,7 @@ export async function confirmMock(externalId: string): Promise<Order> {
       status: "CONFIRMED",
       total: 1000,
       createdAt: new Date().toISOString(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       items: [{ productName: "Producto mock", quantity: 1 } as any],
     } as Order;
     orders.push(newOrder);

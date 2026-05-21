@@ -1,5 +1,4 @@
 import { api } from "@/lib/api";
-import type { ApiError } from "@/lib/api";
 
 export type User = { id: string; email: string; role: string; name: string; address: string };
 export type AuthResponse = { token: string; user: User };
@@ -17,7 +16,7 @@ function delay(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-async function mockLogin(email: string, password: string): Promise<AuthResponse> {
+async function mockLogin(email: string, _password: string): Promise<AuthResponse> {
   await delay(200);
   return {
     token: "mock-token",
