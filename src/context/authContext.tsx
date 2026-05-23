@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { useRouter } from "next/navigation";
 import { authService } from "@/lib/services/auth.service";
 import { employeesService } from "@/lib/services/employees.service";
-import { User } from "@/lib/auth.types";
+import { mapEmployeeResponseToUser, User } from "@/lib/auth.types";
 
 // Definimos qué expone nuestro contexto
 interface AuthContextType {
@@ -13,6 +13,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, pass: string) => Promise<void>;
   logout: () => void;
+  updateUser: (updatedUser: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,7 +32,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           // Buscamos los datos reales del empleado
           const userData = await employeesService.getMe(token);
-          setUser(userData);
+          const mappedUser = mapEmployeeResponseToUser(userData); // Convertimos la respuesta al formato User
+          setUser(mappedUser);
           setToken(token);
         } catch {
           // Si el token expiró o es inválido, limpiamos
@@ -55,7 +57,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const userData = await employeesService.getMe(token);
     
     // 4. Actualizamos el estado global
-    setUser(userData);
+    const mappedUser = mapEmployeeResponseToUser(userData);
+    setUser(mappedUser);
     setToken(token);
     
     // 5. Redireccionamos
@@ -70,8 +73,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/login");
   };
 
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+  }
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

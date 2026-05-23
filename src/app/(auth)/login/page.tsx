@@ -1,8 +1,9 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/authContext";
+import { useRouter } from "next/navigation";
 
 export default function ManagerLoginPage() {
   const [email, setEmail] = useState("");
@@ -10,8 +11,16 @@ export default function ManagerLoginPage() {
   const [error, setError] = useState("");
   
   // Extraemos la lógica de negocio de nuestro Hook
-  const { login } = useAuth(); 
+  const { login, user } = useAuth(); 
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    // Si el usuario ya está logueado, lo redirigimos automáticamente
+    if (user) {
+      router.push("/orders");
+    }
+  }, [user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
