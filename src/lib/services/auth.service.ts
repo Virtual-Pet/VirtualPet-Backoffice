@@ -23,11 +23,11 @@ export const authService = {
     });
   },
 
-  async changePassword(password: string, token: string): Promise<{ message: string }> {
+  async changePassword({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }, token: string): Promise<{ message: string }> {
     return api<{ message: string }>("/api/v1/auth/change-password", {
       method: "POST",
       token, // JWT actual del usuario que está forzado a cambiar la clave
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ currentPassword, newPassword }),
     });
   },
 };

@@ -3,11 +3,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/context/authContext";
 import { employeesService } from "@/lib/services/employees.service";
-import { CreateEmployee, Employee } from "@/lib/auth.types";
+import { CreateEmployee, EmployeeApiResponse, mapEmployeeResponseToUser } from "@/lib/auth.types";
+import { User } from "@/lib/auth";
 
 export default function EmployeesPage() {
     const { token } = useAuth(); // Necesitamos el token para hacer las peticiones
-    const [employees, setEmployees] = useState<Employee[]>([]);
+    const [employees, setEmployees] = useState<EmployeeApiResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState<CreateEmployee>({ name: "", lastname: "", email: "", temporaryPassword: "", legajo: "", warehouseId: 1, role: "ROLE_EMPLOYEE" });
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -175,7 +176,7 @@ export default function EmployeesPage() {
                                     </td>
                                     <td className="px-6 py-4 text-slate-500">{emp.email}</td>
                                     <td className="px-6 py-4 text-slate-600">
-                                        Nº {emp.warehouse}
+                                        Nº {emp.warehouseId}
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${emp.role === "ROLE_ADMIN"

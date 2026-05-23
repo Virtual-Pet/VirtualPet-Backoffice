@@ -1,13 +1,13 @@
 import { api } from "@/lib/api";
-import { CreateEmployee, Employee } from "../auth.types";
+import { CreateEmployee, Employee, EmployeeApiResponse } from "../auth.types";
 
 export const employeesService = {
   // ----------------------------------------------------------------
   // RUTAS PARA EMPLEADOS (Requiere token válido de operario/admin)
   // ----------------------------------------------------------------
   
-  async getMe(token: string): Promise<Employee> {
-    return api<Employee>("/api/v1/employees/me", {
+  async getMe(token: string): Promise<EmployeeApiResponse> {
+    return api<EmployeeApiResponse>("/api/v1/employees/me", {
       method: "GET",
       token,
     });
@@ -17,8 +17,8 @@ export const employeesService = {
   // RUTAS PARA ADMINISTRADORES (Requiere ROLE_ADMIN)
   // ----------------------------------------------------------------
 
-  async getAll(token: string): Promise<Employee[]> {
-    return api<Employee[]>("/api/v1/admin/employees", {
+  async getAll(token: string): Promise<EmployeeApiResponse[]> {
+    return api<EmployeeApiResponse[]>("/api/v1/admin/employees", {
       method: "GET",
       token,
     });
