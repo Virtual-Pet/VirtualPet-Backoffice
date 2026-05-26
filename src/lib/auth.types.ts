@@ -9,7 +9,8 @@ export interface User {
   role: ROLES;
   name: string;
   lastname: string;
-  type?: Employee
+  type?: Employee;
+  forcePasswordChange?: boolean; // Nueva propiedad para indicar si el usuario debe cambiar su contraseña
 }
 
 export interface Employee {
@@ -27,6 +28,7 @@ export interface CreateEmployee {
   lastname: string;
   email: string;
   temporaryPassword: string;
+  forcePasswordChange?: boolean;
   role: ROLES;
   legajo: string;
   warehouseId: number;

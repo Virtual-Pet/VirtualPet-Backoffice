@@ -1,9 +1,9 @@
 import { api } from "@/lib/api";
-import { User, LoginResponse } from "@/lib/auth.types"; // Asumiendo que tenés estos tipos exportados
+import { LoginResponse } from "@/lib/auth.types"; // Asumiendo que tenés estos tipos exportados
 
 export const authService = {
   async login(email: string, password: string): Promise<LoginResponse> {
-    return api<LoginResponse>("/api/v1/auth/login", {
+    return api<LoginResponse>("/api/v1/backoffice/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     });
