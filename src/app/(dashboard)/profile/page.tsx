@@ -29,6 +29,7 @@ export default function ProfilePage() {
     text: "",
   });
 
+
   useEffect(() => {
     if (user) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
