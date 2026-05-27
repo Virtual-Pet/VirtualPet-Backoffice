@@ -7,7 +7,7 @@ export const employeesService = {
   // ----------------------------------------------------------------
   
   async getMe(token: string): Promise<EmployeeApiResponse> {
-    return api<EmployeeApiResponse>("/api/v1/employees/me", {
+    return api<EmployeeApiResponse>("/api/v1/backoffice/auth/me", {
       method: "GET",
       token,
     });
@@ -18,14 +18,14 @@ export const employeesService = {
   // ----------------------------------------------------------------
 
   async getAll(token: string): Promise<EmployeeApiResponse[]> {
-    return api<EmployeeApiResponse[]>("/api/v1/admin/employees", {
+    return api<EmployeeApiResponse[]>("/api/v1/backoffice/employees", {
       method: "GET",
       token,
     });
   },
 
   async create(data: CreateEmployee, token: string): Promise<Employee> {
-    return api<Employee>("/api/v1/admin/employees", {
+    return api<Employee>("/api/v1/backoffice/employees", {
       method: "POST",
       token,
       body: JSON.stringify(data),
@@ -33,7 +33,7 @@ export const employeesService = {
   },
 
   async update(id: string, data: Partial<CreateEmployee>, token: string): Promise<Employee> {
-    return api<Employee>(`/api/v1/admin/employees/${id}`, {
+    return api<Employee>(`/api/v1/backoffice/employees/${id}`, {
       method: "PUT",
       token,
       body: JSON.stringify(data),

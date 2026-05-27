@@ -11,9 +11,11 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, pass: string) => Promise<void>;
+  mustChangePassword: boolean;
+  login: (email: string, pass: string) => Promise<boolean>;
   logout: () => void;
   updateUser: (updatedUser: User) => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,22 +24,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
   const router = useRouter();
+  const PASSWORD_CHANGE_FLAG = "vp_manager_force_password_change";
+
+  const setForcePasswordFlag = (value: boolean) => {
+    setMustChangePassword(value);
+    if (value) {
+      localStorage.setItem(PASSWORD_CHANGE_FLAG, "1");
+    } else {
+      localStorage.removeItem(PASSWORD_CHANGE_FLAG);
+    }
+  };
+
+  const fetchProfile = async (sessionToken: string) => {
+    const userData = await employeesService.getMe(sessionToken);
+    const mappedUser = mapEmployeeResponseToUser(userData);
+    setUser(mappedUser);
+    return mappedUser;
+  };
+
+  const refreshUser = async () => {
+    if (!token) throw new Error("No token available");
+    setForcePasswordFlag(false);
+    await fetchProfile(token);
+  };
 
   // Al cargar la app, verificamos si ya hay un token
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem("vp_manager_token");
+      const forcePassword = localStorage.getItem(PASSWORD_CHANGE_FLAG) === "1";
       if (token) {
+        setToken(token);
+        if (forcePassword) {
+          setMustChangePassword(true);
+          setLoading(false);
+          return;
+        }
+
         try {
-          // Buscamos los datos reales del empleado
-          const userData = await employeesService.getMe(token);
-          const mappedUser = mapEmployeeResponseToUser(userData); // Convertimos la respuesta al formato User
-          setUser(mappedUser);
-          setToken(token);
+          await fetchProfile(token);
         } catch {
-          // Si el token expiró o es inválido, limpiamos
           localStorage.removeItem("vp_manager_token");
+          localStorage.removeItem(PASSWORD_CHANGE_FLAG);
+          setToken(null);
+          setUser(null);
         }
       }
       setLoading(false);
@@ -47,22 +79,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Lógica central de Login
   const login = async (email: string, pass: string) => {
-    // 1. Llamamos al servicio (fetch)
-    const { token } = await authService.login(email, pass);
-    
-    // 2. Guardamos el token
+    const { token, user } = await authService.login(email, pass);
+    const forcePasswordChange = user?.forcePasswordChange;
+
     localStorage.setItem("vp_manager_token", token);
-    
-    // 3. Obtenemos el perfil del empleado logueado
-    const userData = await employeesService.getMe(token);
-    
-    // 4. Actualizamos el estado global
-    const mappedUser = mapEmployeeResponseToUser(userData);
-    setUser(mappedUser);
     setToken(token);
-    
-    // 5. Redireccionamos
-    router.push("/orders");
+    setForcePasswordFlag(Boolean(forcePasswordChange));
+
+    if (forcePasswordChange) {
+      setUser(null);
+      return true;
+    }
+
+    await fetchProfile(token);
+    return false;
   };
 
   // Lógica central de Logout
@@ -78,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, token, loading, mustChangePassword, login, logout, updateUser, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
