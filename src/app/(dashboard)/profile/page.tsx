@@ -124,7 +124,7 @@ export default function ProfilePage() {
         newPassword: "",
         confirmPassword: "",
       }); // Limpiamos campos
-    } catch (error) {
+    } catch {
       setPasswordMessage({
         type: "error",
         text: "Hubo un problema al procesar el cambio.",

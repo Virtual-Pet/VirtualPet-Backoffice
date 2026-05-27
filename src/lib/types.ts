@@ -114,14 +114,4 @@ export type BackofficeOrder = {
   total: number;
   createdAt: string;
 };
-
-interface LoginResponse {
-  token: string;
-  user: {
-    id: string;
-    email: string;
-    role: string;
-    name: string;
-    lastname: string;
-  };
-}
+

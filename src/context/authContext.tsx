@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Lógica central de Login
   const login = async (email: string, pass: string) => {
     const response = await authService.login(email, pass);
-    const { accessToken, user } = response as any;
+    const { accessToken, user } = response;
     const forcePasswordChange = user?.forcePasswordChange;
 
     localStorage.setItem("vp_manager_token", accessToken);
