@@ -7,7 +7,7 @@ export const employeesService = {
   // ----------------------------------------------------------------
   
   async getMe(token: string): Promise<EmployeeApiResponse> {
-    return api<EmployeeApiResponse>("/api/v1/backoffice/auth/me", {
+    return api<EmployeeApiResponse>("/api/v1/auth/me", {
       method: "GET",
       token,
     });

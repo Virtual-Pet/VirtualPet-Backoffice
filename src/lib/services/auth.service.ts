@@ -3,7 +3,7 @@ import { LoginResponse } from "@/lib/auth.types"; // Asumiendo que tenés estos 
 
 export const authService = {
   async login(email: string, password: string): Promise<LoginResponse> {
-    return api<LoginResponse>("/api/v1/backoffice/auth/login", {
+    return api<LoginResponse>("/api/v1/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     });
@@ -24,7 +24,7 @@ export const authService = {
   },
 
   async changePassword({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }, token: string): Promise<{ message: string }> {
-    return api<{ message: string }>("/api/v1/auth/change-password", {
+    return api<{ message: string }>("/api/v1/auth/password/change", {
       method: "POST",
       token, // JWT actual del usuario que está forzado a cambiar la clave
       body: JSON.stringify({ currentPassword, newPassword }),

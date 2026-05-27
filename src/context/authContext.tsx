@@ -79,11 +79,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Lógica central de Login
   const login = async (email: string, pass: string) => {
-    const { token, user } = await authService.login(email, pass);
+    const response = await authService.login(email, pass);
+    const { accessToken, user } = response as any;
     const forcePasswordChange = user?.forcePasswordChange;
 
-    localStorage.setItem("vp_manager_token", token);
-    setToken(token);
+    localStorage.setItem("vp_manager_token", accessToken);
+    setToken(accessToken);
     setForcePasswordFlag(Boolean(forcePasswordChange));
 
     if (forcePasswordChange) {
@@ -91,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return true;
     }
 
-    await fetchProfile(token);
+    await fetchProfile(accessToken);
     return false;
   };
 

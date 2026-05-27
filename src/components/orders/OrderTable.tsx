@@ -11,7 +11,7 @@ import { formatPrice } from "@/lib/api";
  */
 const NEXT_STATUS: Record<string, { label: string; next: string; colorClass: string }> = {
   CONFIRMED: {
-    label: "Comenzar preparación",
+    label: "Marcar como Preparado",
     next: "PREPARED",
     colorClass: "bg-purple-600 hover:bg-purple-700",
   },
@@ -84,9 +84,11 @@ export function OrderTable({ orders, loading, activeTab, onAction }: OrderTableP
               </td>
               <td className="px-5 py-4 text-[var(--vp-muted)]">
                 {order.createdAt
-                  ? new Date(order.createdAt).toLocaleDateString("es-AR", {
+                  ? new Date(order.createdAt).toLocaleString("es-AR", {
                       day: "2-digit",
                       month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit"
                     })
                   : "—"}
               </td>
