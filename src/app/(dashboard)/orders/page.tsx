@@ -1,38 +1,49 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { ordersService } from "@/lib/services/orders.service";
+import { backofficeService } from "@/lib/services/backoffice";
 import type { BackofficeOrder } from "@/lib/types";
 import { OrderTabs } from "@/components/orders/OrderTabs";
 import { OrderTable } from "@/components/orders/OrderTable";
+import { useAuth } from "@/context/authContext";
 
 export default function OrdersPage() {
-  const [activeTab, setActiveTab] = useState("PENDING");
+  // Default tab: CONFIRMED = pedidos recién pagados, pendientes de preparación
+  const [activeTab, setActiveTab] = useState("CONFIRMED");
   const [orders, setOrders] = useState<BackofficeOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { token } = useAuth();
 
-  const loadOrders = useCallback(async (status: string) => {
-    setLoading(true);
-    try {
-    //   const data = await ordersService.listByStatus(status);
-    //   setOrders(data);
-    } catch (error) {
-      console.error(error);
-      setOrders([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const loadOrders = useCallback(
+    async (status: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await backofficeService.listByStatus(status, token ?? undefined);
+        setOrders(data);
+      } catch (err) {
+        console.error("Error cargando pedidos:", err);
+        setOrders([]);
+        setError("No se pudieron cargar los pedidos. Verificá que el backend esté corriendo.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token]
+  );
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadOrders(activeTab);
-  }, [activeTab, loadOrders]);
+    if (token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      loadOrders(activeTab);
+    }
+  }, [activeTab, token, loadOrders]);
 
-  const handleStatusChange = async (orderId: string, newStatus: string) => {
+  const handleStatusChange = async (shipmentId: string, nextStatus: string) => {
     try {
-    //   await ordersService.updateStatus(orderId, newStatus);
-      await loadOrders(activeTab); // Recargamos
+      await backofficeService.advanceShipment(shipmentId, nextStatus, token ?? undefined);
+      await loadOrders(activeTab);
     } catch {
       alert("Error al actualizar el estado. Intentá de nuevo.");
     }
@@ -46,12 +57,18 @@ export default function OrdersPage() {
       </div>
 
       <OrderTabs activeTab={activeTab} onTabChange={setActiveTab} />
-      
-      <OrderTable 
-        orders={orders} 
-        loading={loading} 
-        activeTab={activeTab} 
-        onAction={handleStatusChange} 
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
+      <OrderTable
+        orders={orders}
+        loading={loading}
+        activeTab={activeTab}
+        onAction={handleStatusChange}
       />
     </div>
   );
