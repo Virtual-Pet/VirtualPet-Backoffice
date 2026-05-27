@@ -70,11 +70,11 @@ export default function ChangePasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md bg-white rounded-3xl border border-slate-200 p-8 shadow-2xl">
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md bg-white rounded-3xl border border-[var(--vp-border)] p-8 shadow-2xl">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Cambiar contraseña</h1>
-          <p className="text-sm text-slate-500 mt-2">
+          <h1 className="text-2xl font-bold text-[var(--foreground)]">Cambiar contraseña</h1>
+          <p className="text-sm text-[var(--vp-muted)] mt-2">
             Ingresá tu contraseña actual y elegí una nueva.
           </p>
         </div>
@@ -91,7 +91,7 @@ export default function ChangePasswordPage() {
                 setFormData({ ...formData, currentPassword: e.target.value })
               }
               required
-              className="w-full px-4 py-3 border border-slate-200 rounded-2xl text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+              className="w-full px-4 py-3 border border-[var(--vp-border)] rounded-2xl text-sm text-[var(--foreground)] outline-none focus:border-[var(--vp-primary)] focus:ring-4 focus:ring-[var(--vp-primary)]/10"
             />
           </div>
 
@@ -106,7 +106,7 @@ export default function ChangePasswordPage() {
                 setFormData({ ...formData, newPassword: e.target.value })
               }
               required
-              className="w-full px-4 py-3 border border-slate-200 rounded-2xl text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+              className="w-full px-4 py-3 border border-[var(--vp-border)] rounded-2xl text-sm text-[var(--foreground)] outline-none focus:border-[var(--vp-primary)] focus:ring-4 focus:ring-[var(--vp-primary)]/10"
             />
           </div>
 
@@ -121,7 +121,7 @@ export default function ChangePasswordPage() {
                 setFormData({ ...formData, confirmPassword: e.target.value })
               }
               required
-              className="w-full px-4 py-3 border border-slate-200 rounded-2xl text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+              className="w-full px-4 py-3 border border-[var(--vp-border)] rounded-2xl text-sm text-[var(--foreground)] outline-none focus:border-[var(--vp-primary)] focus:ring-4 focus:ring-[var(--vp-primary)]/10"
             />
           </div>
 
@@ -140,7 +140,7 @@ export default function ChangePasswordPage() {
           <button
             type="submit"
             disabled={isSubmitting || loading}
-            className="w-full py-3.5 rounded-2xl bg-slate-900 text-white text-sm font-semibold transition hover:bg-slate-800 disabled:opacity-60"
+            className="w-full py-3.5 rounded-2xl bg-[var(--vp-primary)] text-white text-sm font-semibold transition hover:bg-[var(--vp-primary-dark)] disabled:opacity-60"
           >
             {isSubmitting ? "Cambiando contraseña..." : "Cambiar contraseña"}
           </button>

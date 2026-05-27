@@ -17,10 +17,10 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-60 flex-shrink-0 bg-slate-900 text-white flex flex-col min-h-screen">
+    <aside className="w-60 flex-shrink-0 bg-[var(--vp-primary-dark)] text-white flex flex-col min-h-screen">
       
       {/* Cabecera del Sidebar */}
-      <div className="p-6 border-b border-slate-800 flex items-center gap-3">
+      <div className="p-6 border-b border-[var(--vp-primary)] flex items-center gap-3">
         <span className="text-2xl">🏪</span>
         <div>
           <p className="m-0 font-bold text-sm">Virtual Pet</p>
@@ -29,9 +29,9 @@ export default function Sidebar() {
 
       {/* Info del usuario logueado (¡Aprovechamos que ya lo tenemos en el Context!) */}
       {user && (
-        <div className="px-6 py-4 border-b border-slate-800 bg-slate-800/20">
-          <p className="text-xs text-slate-500 mb-0.5">Operario</p>
-          <p className="text-sm font-medium text-slate-300 truncate">
+        <div className="px-6 py-4 border-b border-[var(--vp-primary)] bg-black/10">
+          <p className="text-xs text-white/60 mb-0.5">Operario</p>
+          <p className="text-sm font-medium text-white/90 truncate">
             {user.name} {user.lastname}
           </p>
         </div>
@@ -50,8 +50,8 @@ export default function Sidebar() {
                 href={item.href}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                   active
-                    ? "bg-slate-800 text-white font-semibold"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+                    ? "bg-[var(--vp-primary)] text-white font-semibold"
+                    : "text-white/70 hover:text-white hover:bg-[var(--vp-primary)]"
                 }`}
               >
                 <span>{item.icon}</span>
@@ -62,10 +62,10 @@ export default function Sidebar() {
       </nav>
 
       {/* Botón de Logout */}
-      <div className="p-5 border-t border-slate-800">
+      <div className="p-5 border-t border-[var(--vp-primary)]">
         <button
           onClick={logout} // Llamamos directamente a la función del contexto
-          className="w-full py-2.5 px-4 bg-transparent border border-slate-700 text-slate-400 rounded-lg text-sm hover:bg-slate-800 hover:text-white transition-colors"
+          className="w-full py-2.5 px-4 bg-transparent border border-[var(--vp-primary)] text-white/70 rounded-lg text-sm hover:bg-[var(--vp-primary)] hover:text-white transition-colors"
         >
           Cerrar sesión
         </button>

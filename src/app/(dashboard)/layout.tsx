@@ -16,7 +16,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (!token) {
       router.replace("/login");
     } else if (mustChangePassword) {
-      router.replace("/auth/change-password");
+      router.replace("/change-password");
     } else {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setReady(true);

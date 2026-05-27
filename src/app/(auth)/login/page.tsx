@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -42,18 +42,18 @@ export default function ManagerLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-4 font-sans">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[var(--vp-primary-dark)] to-[var(--vp-primary)] p-4 font-sans">
       <div className="bg-white rounded-[24px] p-8 sm:p-10 w-full max-w-[420px] shadow-2xl">
         
         {/* Logo area */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg">
+          <div className="w-16 h-16 bg-[var(--vp-primary)] text-white rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg">
             🏪
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 m-0 tracking-tight">
+          <h1 className="text-2xl font-bold text-[var(--foreground)] m-0 tracking-tight">
             Virtual Pet
           </h1>
-          <p className="text-sm text-slate-500 mt-1 font-medium">
+          <p className="text-sm text-[var(--vp-muted)] mt-1 font-medium">
             Portal de operarios — Depósito
           </p>
         </div>
@@ -74,7 +74,7 @@ export default function ManagerLoginPage() {
               placeholder="operario@virtualpet.com"
               required
               autoComplete="username"
-              className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm outline-none transition-all bg-white text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+              className="w-full px-4 py-3 border-2 border-[var(--vp-border)] rounded-xl text-sm outline-none transition-all bg-white text-[var(--foreground)] placeholder:text-[var(--vp-muted)] focus:border-[var(--vp-primary)] focus:ring-4 focus:ring-[var(--vp-primary)]/10"
             />
           </div>
 
@@ -93,7 +93,7 @@ export default function ManagerLoginPage() {
               placeholder="••••••••"
               required
               autoComplete="current-password"
-              className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm outline-none transition-all bg-white text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+              className="w-full px-4 py-3 border-2 border-[var(--vp-border)] rounded-xl text-sm outline-none transition-all bg-white text-[var(--foreground)] placeholder:text-[var(--vp-muted)] focus:border-[var(--vp-primary)] focus:ring-4 focus:ring-[var(--vp-primary)]/10"
             />
           </div>
 
@@ -107,7 +107,7 @@ export default function ManagerLoginPage() {
             id="manager-login-btn"
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3.5 mt-2 bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-xl text-base font-semibold shadow-md transition-all hover:opacity-90 hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-md"
+            className="w-full py-3.5 mt-2 bg-[var(--vp-primary)] text-white rounded-xl text-base font-semibold shadow-md transition-all hover:bg-[var(--vp-primary-dark)] hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-md"
           >
             {isSubmitting ? "Ingresando..." : "Ingresar al depósito"}
           </button>
@@ -117,7 +117,7 @@ export default function ManagerLoginPage() {
           ¿Sos cliente?{" "}
           <Link
             href="/login"
-            className="text-blue-600 hover:text-blue-500 transition-colors"
+            className="text-[var(--vp-primary)] hover:text-[var(--vp-primary-dark)] transition-colors"
           >
             Ir al Marketplace
           </Link>
