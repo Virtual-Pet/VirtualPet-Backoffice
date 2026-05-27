@@ -27,8 +27,8 @@ export function OrderTabs({ activeTab, onTabChange }: OrderTabsProps) {
             onClick={() => onTabChange(tab.key)}
             className={`px-4 py-2 border-[1.5px] rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
               isActive
-                ? "bg-slate-900 text-white border-slate-900"
-                : "bg-white text-slate-500 border-slate-200 hover:border-slate-400 hover:text-slate-700"
+                ? "bg-[var(--vp-primary-dark)] text-white border-[var(--vp-primary-dark)]"
+                : "bg-white text-[var(--vp-muted)] border-[var(--vp-border)] hover:border-[var(--vp-primary)] hover:text-[var(--vp-primary-dark)]"
             }`}
           >
             {tab.label}

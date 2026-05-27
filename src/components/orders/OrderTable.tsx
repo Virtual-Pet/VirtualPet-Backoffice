@@ -23,7 +23,7 @@ const NEXT_STATUS: Record<string, { label: string; next: string; colorClass: str
   IN_TRANSIT: {
     label: "Confirmar entrega",
     next: "DELIVERED",
-    colorClass: "bg-green-500 hover:bg-green-600",
+    colorClass: "bg-[var(--vp-primary)] hover:bg-[var(--vp-primary-dark)]",
   },
   // DELIVERED is terminal — no action button
 };
@@ -40,7 +40,7 @@ export function OrderTable({ orders, loading, activeTab, onAction }: OrderTableP
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-500">
+      <div className="bg-white rounded-2xl border border-[var(--vp-border)] p-12 text-center text-[var(--vp-muted)]">
         Cargando pedidos...
       </div>
     );
@@ -48,18 +48,18 @@ export function OrderTable({ orders, loading, activeTab, onAction }: OrderTableP
 
   if (orders.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 p-16 text-center text-slate-500">
+      <div className="bg-white rounded-2xl border border-[var(--vp-border)] p-16 text-center text-[var(--vp-muted)]">
         <div className="text-4xl mb-3">✅</div>
-        <p className="font-medium text-slate-700">No hay pedidos en este estado</p>
+        <p className="font-medium text-[var(--foreground)]">No hay pedidos en este estado</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+    <div className="bg-white rounded-2xl border border-[var(--vp-border)] overflow-hidden shadow-sm">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500 font-semibold">
+          <tr className="bg-[var(--background)] border-b border-[var(--vp-border)] text-xs uppercase tracking-wide text-[var(--vp-muted)] font-semibold">
             <th className="px-5 py-4">Pedido</th>
             <th className="px-5 py-4">Cliente</th>
             <th className="px-5 py-4">Total</th>
@@ -67,22 +67,22 @@ export function OrderTable({ orders, loading, activeTab, onAction }: OrderTableP
             <th className="px-5 py-4">Acción</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100 text-sm">
+        <tbody className="divide-y divide-[var(--vp-border)] text-sm">
           {orders.map((order) => (
-            <tr key={order.shipmentId} className="hover:bg-slate-50 transition-colors">
+            <tr key={order.shipmentId} className="hover:bg-[var(--background)] transition-colors">
               <td className="px-5 py-4">
-                <span className="font-mono font-bold text-slate-900">
+                <span className="font-mono font-bold text-[var(--foreground)]">
                   #{order.orderId.slice(0, 8).toUpperCase()}
                 </span>
               </td>
               <td className="px-5 py-4">
-                <p className="font-medium text-slate-800 m-0">{order.contactName}</p>
-                <p className="text-xs text-slate-500 m-0 mt-0.5">{order.contactEmail}</p>
+                <p className="font-medium text-[var(--foreground)] m-0">{order.contactName}</p>
+                <p className="text-xs text-[var(--vp-muted)] m-0 mt-0.5">{order.contactEmail}</p>
               </td>
-              <td className="px-5 py-4 font-bold text-slate-900">
+              <td className="px-5 py-4 font-bold text-[var(--foreground)]">
                 {formatPrice(order.total)}
               </td>
-              <td className="px-5 py-4 text-slate-500">
+              <td className="px-5 py-4 text-[var(--vp-muted)]">
                 {order.createdAt
                   ? new Date(order.createdAt).toLocaleDateString("es-AR", {
                       day: "2-digit",
