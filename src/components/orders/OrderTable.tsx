@@ -1,22 +1,38 @@
 "use client";
 
 import type { BackofficeOrder } from "@/lib/types";
-// Si tenés una función para formatear precios en otro lado, la importás acá.
-// Por ejemplo: import { formatPrice } from "@/lib/utils/formatters";
+import { formatPrice } from "@/lib/api";
 
-// Definimos los siguientes estados posibles
+/**
+ * Maps the current ShipmentStatus (= the active tab) to the action button config.
+ * The `next` value is the backend ShipmentStatus target for PATCH /api/v1/shipments/{id}.
+ *
+ * Backend state machine: CONFIRMED → PREPARED → IN_TRANSIT → DELIVERED
+ */
 const NEXT_STATUS: Record<string, { label: string; next: string; colorClass: string }> = {
-  PENDING: { label: "Comenzar preparación", next: "IN_PREPARATION", colorClass: "bg-purple-600 hover:bg-purple-700" },
-  IN_PREPARATION: { label: "Marcar como listo", next: "PREPARED", colorClass: "bg-cyan-500 hover:bg-cyan-600" },
-  PREPARED: { label: "Enviar", next: "SHIPPED", colorClass: "bg-orange-500 hover:bg-orange-600" },
-  SHIPPED: { label: "Confirmar entrega", next: "DELIVERED", colorClass: "bg-green-500 hover:bg-green-600" },
+  CONFIRMED: {
+    label: "Comenzar preparación",
+    next: "PREPARED",
+    colorClass: "bg-purple-600 hover:bg-purple-700",
+  },
+  PREPARED: {
+    label: "Enviar",
+    next: "IN_TRANSIT",
+    colorClass: "bg-orange-500 hover:bg-orange-600",
+  },
+  IN_TRANSIT: {
+    label: "Confirmar entrega",
+    next: "DELIVERED",
+    colorClass: "bg-green-500 hover:bg-green-600",
+  },
+  // DELIVERED is terminal — no action button
 };
 
 interface OrderTableProps {
   orders: BackofficeOrder[];
   loading: boolean;
   activeTab: string;
-  onAction: (orderId: string, nextStatus: string) => void;
+  onAction: (shipmentId: string, nextStatus: string) => void;
 }
 
 export function OrderTable({ orders, loading, activeTab, onAction }: OrderTableProps) {
@@ -64,7 +80,7 @@ export function OrderTable({ orders, loading, activeTab, onAction }: OrderTableP
                 <p className="text-xs text-slate-500 m-0 mt-0.5">{order.contactEmail}</p>
               </td>
               <td className="px-5 py-4 font-bold text-slate-900">
-                ${order.total?.toLocaleString("es-AR")}
+                {formatPrice(order.total)}
               </td>
               <td className="px-5 py-4 text-slate-500">
                 {order.createdAt
@@ -77,7 +93,7 @@ export function OrderTable({ orders, loading, activeTab, onAction }: OrderTableP
               <td className="px-5 py-4">
                 {nextAction && (
                   <button
-                    onClick={() => onAction(order.orderId, nextAction.next)}
+                    onClick={() => onAction(order.shipmentId, nextAction.next)}
                     className={`px-4 py-2 rounded-lg text-white font-semibold text-xs transition-colors shadow-sm ${nextAction.colorClass}`}
                   >
                     {nextAction.label}
