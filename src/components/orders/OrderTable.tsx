@@ -1,15 +1,13 @@
 "use client";
 
-import type { BackofficeOrder } from "@/lib/types";
+import type { ShipmentStatus, ShipmentSummary } from "@/lib/types";
 import { formatPrice } from "@/lib/api";
 
-/**
- * Maps the current ShipmentStatus (= the active tab) to the action button config.
- * The `next` value is the backend ShipmentStatus target for PATCH /api/v1/shipments/{id}.
- *
- * Backend state machine: CONFIRMED → PREPARED → IN_TRANSIT → DELIVERED
- */
-const NEXT_STATUS: Record<string, { label: string; next: string; colorClass: string }> = {
+type AdvanceTarget = "PREPARED" | "IN_TRANSIT" | "DELIVERED";
+
+const NEXT_STATUS: Partial<
+  Record<ShipmentStatus, { label: string; next: AdvanceTarget; colorClass: string }>
+> = {
   CONFIRMED: {
     label: "Marcar como Preparado",
     next: "PREPARED",
@@ -25,18 +23,27 @@ const NEXT_STATUS: Record<string, { label: string; next: string; colorClass: str
     next: "DELIVERED",
     colorClass: "bg-[var(--vp-primary)] hover:bg-[var(--vp-primary-dark)]",
   },
-  // DELIVERED is terminal — no action button
 };
 
+const CAN_CANCEL: ReadonlySet<ShipmentStatus> = new Set(["CONFIRMED", "PREPARED"]);
+
 interface OrderTableProps {
-  orders: BackofficeOrder[];
+  orders: ShipmentSummary[];
   loading: boolean;
-  activeTab: string;
-  onAction: (shipmentId: string, nextStatus: string) => void;
+  activeTab: ShipmentStatus;
+  onAdvance: (shipmentId: string, nextStatus: AdvanceTarget) => void;
+  onCancel: (orderId: string) => void;
 }
 
-export function OrderTable({ orders, loading, activeTab, onAction }: OrderTableProps) {
+export function OrderTable({
+  orders,
+  loading,
+  activeTab,
+  onAdvance,
+  onCancel,
+}: OrderTableProps) {
   const nextAction = NEXT_STATUS[activeTab];
+  const canCancel = CAN_CANCEL.has(activeTab);
 
   if (loading) {
     return (
@@ -63,44 +70,61 @@ export function OrderTable({ orders, loading, activeTab, onAction }: OrderTableP
             <th className="px-5 py-4">Pedido</th>
             <th className="px-5 py-4">Cliente</th>
             <th className="px-5 py-4">Total</th>
-            <th className="px-5 py-4">Fecha</th>
-            <th className="px-5 py-4">Acción</th>
+            <th className="px-5 py-4">Actualizado</th>
+            <th className="px-5 py-4">Acciones</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-[var(--vp-border)] text-sm">
           {orders.map((order) => (
-            <tr key={order.shipmentId} className="hover:bg-[var(--background)] transition-colors">
+            <tr
+              key={order.shipmentId}
+              className="hover:bg-[var(--background)] transition-colors"
+            >
               <td className="px-5 py-4">
                 <span className="font-mono font-bold text-[var(--foreground)]">
                   #{order.orderId.slice(0, 8).toUpperCase()}
                 </span>
               </td>
               <td className="px-5 py-4">
-                <p className="font-medium text-[var(--foreground)] m-0">{order.contactName}</p>
-                <p className="text-xs text-[var(--vp-muted)] m-0 mt-0.5">{order.contactEmail}</p>
+                <p className="font-medium text-[var(--foreground)] m-0">
+                  {order.contactName ?? "—"}
+                </p>
+                <p className="text-xs text-[var(--vp-muted)] m-0 mt-0.5">
+                  {order.contactEmail ?? "—"}
+                </p>
               </td>
               <td className="px-5 py-4 font-bold text-[var(--foreground)]">
                 {formatPrice(order.total)}
               </td>
               <td className="px-5 py-4 text-[var(--vp-muted)]">
-                {order.createdAt
-                  ? new Date(order.createdAt).toLocaleString("es-AR", {
+                {order.updatedAt
+                  ? new Date(order.updatedAt).toLocaleString("es-AR", {
                       day: "2-digit",
                       month: "short",
                       hour: "2-digit",
-                      minute: "2-digit"
+                      minute: "2-digit",
                     })
                   : "—"}
               </td>
               <td className="px-5 py-4">
-                {nextAction && (
-                  <button
-                    onClick={() => onAction(order.shipmentId, nextAction.next)}
-                    className={`px-4 py-2 rounded-lg text-white font-semibold text-xs transition-colors shadow-sm ${nextAction.colorClass}`}
-                  >
-                    {nextAction.label}
-                  </button>
-                )}
+                <div className="flex gap-2 flex-wrap">
+                  {nextAction && (
+                    <button
+                      onClick={() => onAdvance(order.shipmentId, nextAction.next)}
+                      className={`px-4 py-2 rounded-lg text-white font-semibold text-xs transition-colors shadow-sm ${nextAction.colorClass}`}
+                    >
+                      {nextAction.label}
+                    </button>
+                  )}
+                  {canCancel && (
+                    <button
+                      onClick={() => onCancel(order.orderId)}
+                      className="px-4 py-2 rounded-lg text-white font-semibold text-xs transition-colors shadow-sm bg-red-600 hover:bg-red-700"
+                    >
+                      Cancelar
+                    </button>
+                  )}
+                </div>
               </td>
             </tr>
           ))}

@@ -1,82 +1,62 @@
 import { api } from "@/lib/api";
-import type { BackofficeOrder } from "@/lib/types";
+import type {
+  CursorPage,
+  OrderCancellation,
+  Shipment,
+  ShipmentStatus,
+  ShipmentSummary,
+} from "@/lib/types";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// This service wires the Backoffice UI to the real backend APIs:
-//
-//   GET  /api/v1/shipments?status=X  → CursorPage<ShipmentSummaryDTO>
-//   PATCH /api/v1/shipments/{id}     → ShipmentResponseDTO (advance status)
-//
-// Backend ShipmentStatus enum values:
-//   CONFIRMED → PREPARED → IN_TRANSIT → DELIVERED   |  CANCELLED
-//
-// The UI tabs map to these backend statuses for filtering,
-// and each tab has a "next" target for the advance action.
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** Backend DTO shape returned by GET /api/v1/shipments */
-interface ShipmentSummaryDTO {
-  shipmentId: string;
-  orderId: string;
-  status: string;
-  updatedAt: string;
-  contactName: string | null;
-  contactEmail: string | null;
-  total: number | null;
+interface ListShipmentsParams {
+  status?: ShipmentStatus | string;
+  cursor?: string | null;
+  limit?: number;
+  user?: string;
 }
 
-interface CursorPage<T> {
-  data: T[];
-  limit: number;
-  nextCursor: string | null;
-  hasMore: boolean;
-}
-
-/**
- * Lists shipments filtered by the given backend ShipmentStatus.
- * The ShipmentSummaryDTO already includes contact and total info from the order.
- */
-export async function listByStatus(
-  status: string,
-  token?: string
-): Promise<BackofficeOrder[]> {
-  const page = await api<CursorPage<ShipmentSummaryDTO>>(
-    `/api/v1/shipments?status=${status}&limit=50`,
-    { token }
-  );
-
-  if (!page.data || page.data.length === 0) {
-    return [];
+function buildQuery(params: Record<string, string | number | null | undefined>): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== "") {
+      search.set(key, String(value));
+    }
   }
-
-  return page.data.map((s) => ({
-    shipmentId: s.shipmentId,
-    orderId: s.orderId,
-    shipmentStatus: s.status,
-    contactName: s.contactName ?? "—",
-    contactEmail: s.contactEmail ?? "—",
-    total: s.total ?? 0,
-    createdAt: s.updatedAt,
-  }));
+  const qs = search.toString();
+  return qs ? `?${qs}` : "";
 }
 
-/**
- * Advances a shipment to the specified target status.
- * Requires EMPLOYEE or ADMIN role on the JWT.
- *
- * Valid targets: PREPARED, IN_TRANSIT, DELIVERED
- */
-export async function advanceShipment(
-  shipmentId: string,
-  targetStatus: string,
-  token?: string
-): Promise<void> {
-  await api(`/api/v1/shipments/${shipmentId}`, {
-    method: "PATCH",
-    token,
-    body: JSON.stringify({ status: targetStatus }),
-  });
-}
+export const backofficeService = {
+  async listShipments(
+    { status, cursor, limit, user }: ListShipmentsParams,
+    token?: string
+  ): Promise<CursorPage<ShipmentSummary>> {
+    const query = buildQuery({ status, cursor, limit, user });
+    return api<CursorPage<ShipmentSummary>>(`/api/v1/shipments${query}`, { token });
+  },
 
-export const backofficeService = { listByStatus, advanceShipment };
+  async advanceShipment(
+    shipmentId: string,
+    targetStatus: Extract<ShipmentStatus, "PREPARED" | "IN_TRANSIT" | "DELIVERED">,
+    token?: string
+  ): Promise<Shipment> {
+    return api<Shipment>(`/api/v1/shipments/${shipmentId}`, {
+      method: "PATCH",
+      token,
+      body: JSON.stringify({ status: targetStatus }),
+    });
+  },
+
+  async cancelOrder(
+    orderId: string,
+    reason: string | undefined,
+    token?: string
+  ): Promise<OrderCancellation> {
+    return api<OrderCancellation>(`/api/v1/orders/${orderId}/cancel`, {
+      method: "POST",
+      token,
+      body: JSON.stringify(reason ? { reason } : {}),
+    });
+  },
+};
+
 export default backofficeService;

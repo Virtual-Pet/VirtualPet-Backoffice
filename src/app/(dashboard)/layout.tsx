@@ -7,7 +7,7 @@ import { useAuth } from "@/context/authContext";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { token, loading, mustChangePassword } = useAuth();
+  const { token, loading } = useAuth();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -15,13 +15,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     if (!token) {
       router.replace("/login");
-    } else if (mustChangePassword) {
-      router.replace("/change-password");
     } else {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setReady(true);
     }
-  }, [loading, mustChangePassword, router, token]);
+  }, [loading, router, token]);
 
   if (!ready) return null;
 

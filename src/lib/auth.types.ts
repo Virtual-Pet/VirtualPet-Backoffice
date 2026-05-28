@@ -1,75 +1,30 @@
-export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: User;
+export type Role = "CUSTOMER" | "EMPLOYEE" | "ADMIN";
+
+export interface UserSummary {
+  id: string;
+  email: string;
+  role: Role;
 }
 
 export interface User {
   id: string;
   email: string;
-  role: ROLES;
-  name: string;
-  lastname: string;
-  type?: Employee;
-  forcePasswordChange?: boolean; // Nueva propiedad para indicar si el usuario debe cambiar su contraseña
+  firstName: string;
+  lastName: string;
+  role: Role;
 }
 
-export interface Employee {
-  id: string;
-  name: string;
-  lastname: string;
+export interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresIn: number;
+  user: UserSummary;
+}
+
+export interface RegisterEmployeeRequest {
   email: string;
-  role: ROLES;
-  legajo: string;
-  warehouse: number;
+  password: string;
+  firstName: string;
+  lastName: string;
 }
-
-export interface CreateEmployee {
-  name: string;
-  lastname: string;
-  email: string;
-  temporaryPassword: string;
-  forcePasswordChange?: boolean;
-  role: ROLES;
-  legajo: string;
-  warehouseId: number;
-}
-export type UpdateEmployee = Partial<Omit<Employee, "id">>;
-
-export type ROLES = "ROLE_ADMIN" | "ROLE_EMPLOYEE";
-
-export interface EmployeeApiResponse {
-  id: string;
-  email: string;
-  name: string;
-  lastname: string;
-  legajo: string;
-  role: string;
-  warehouseId: number;
-  active: boolean;
-  createdAt: string;
-}
-
-export const mapEmployeeResponseToUser = (data: EmployeeApiResponse): User => {
-  
-  // 1. Construimos el perfil de empleado
-  const employeeData: Employee = {
-    id: data.id,
-    name: data.name,
-    lastname: data.lastname,
-    email: data.email,
-    role: data.role as ROLES, // Casteamos el string al Enum
-    legajo: data.legajo,
-    warehouse: data.warehouseId // Renombramos la propiedad como querías
-  };
-
-  // 2. Construimos y retornamos el usuario global
-  return {
-    id: data.id,
-    email: data.email,
-    role: data.role as ROLES,
-    name: data.name,
-    lastname: data.lastname,
-    type: employeeData // Anidamos el perfil
-  };
-};

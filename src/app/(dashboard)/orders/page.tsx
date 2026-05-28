@@ -2,50 +2,84 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { backofficeService } from "@/lib/services/backoffice";
-import type { BackofficeOrder } from "@/lib/types";
+import type { ShipmentStatus, ShipmentSummary } from "@/lib/types";
 import { OrderTabs } from "@/components/orders/OrderTabs";
 import { OrderTable } from "@/components/orders/OrderTable";
 import { useAuth } from "@/context/authContext";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("orders-page");
+
+type AdvanceTarget = "PREPARED" | "IN_TRANSIT" | "DELIVERED";
 
 export default function OrdersPage() {
-  // Default tab: CONFIRMED = pedidos recién pagados, pendientes de preparación
-  const [activeTab, setActiveTab] = useState("CONFIRMED");
-  const [orders, setOrders] = useState<BackofficeOrder[]>([]);
+  const [activeTab, setActiveTab] = useState<ShipmentStatus>("CONFIRMED");
+  const [orders, setOrders] = useState<ShipmentSummary[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuth();
 
-  const loadOrders = useCallback(
-    async (status: string) => {
-      setLoading(true);
+  const fetchPage = useCallback(
+    async (status: ShipmentStatus, cursor: string | null, append: boolean) => {
+      if (append) setLoadingMore(true);
+      else setLoading(true);
       setError(null);
       try {
-        const data = await backofficeService.listByStatus(status, token ?? undefined);
-        setOrders(data);
+        const page = await backofficeService.listShipments(
+          { status, cursor: cursor ?? undefined },
+          token ?? undefined,
+        );
+        setOrders((prev) => (append ? [...prev, ...page.data] : page.data));
+        setNextCursor(page.nextCursor);
+        setHasMore(page.hasMore);
       } catch (err) {
-        console.error("Error cargando pedidos:", err);
-        setOrders([]);
-        setError("No se pudieron cargar los pedidos. Verificá que el backend esté corriendo.");
+        log.error("Error cargando pedidos", err);
+        if (!append) setOrders([]);
+        setError(
+          (err as { message?: string })?.message ??
+            "No se pudieron cargar los pedidos. Verificá que el backend esté corriendo.",
+        );
       } finally {
-        setLoading(false);
+        if (append) setLoadingMore(false);
+        else setLoading(false);
       }
     },
-    [token]
+    [token],
   );
 
   useEffect(() => {
-    if (token) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      loadOrders(activeTab);
-    }
-  }, [activeTab, token, loadOrders]);
+    if (!token) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchPage(activeTab, null, false);
+  }, [activeTab, token, fetchPage]);
 
-  const handleStatusChange = async (shipmentId: string, nextStatus: string) => {
+  const handleAdvance = async (shipmentId: string, nextStatus: AdvanceTarget) => {
     try {
       await backofficeService.advanceShipment(shipmentId, nextStatus, token ?? undefined);
-      await loadOrders(activeTab);
-    } catch {
-      alert("Error al actualizar el estado. Intentá de nuevo.");
+      await fetchPage(activeTab, null, false);
+    } catch (err) {
+      log.error("Error actualizando estado de envío", { shipmentId, nextStatus, err });
+      alert(
+        (err as { message?: string })?.message ??
+          "Error al actualizar el estado. Intentá de nuevo.",
+      );
+    }
+  };
+
+  const handleCancel = async (orderId: string) => {
+    if (!confirm("¿Cancelar esta orden? Se repone el stock e inicia un reembolso.")) return;
+    try {
+      await backofficeService.cancelOrder(orderId, undefined, token ?? undefined);
+      await fetchPage(activeTab, null, false);
+    } catch (err) {
+      log.error("Error cancelando orden", { orderId, err });
+      alert(
+        (err as { message?: string })?.message ??
+          "No se pudo cancelar la orden. Intentá de nuevo.",
+      );
     }
   };
 
@@ -56,7 +90,7 @@ export default function OrdersPage() {
         <p className="text-sm text-slate-500 mt-1">Depósito Central Mar del Plata</p>
       </div>
 
-      <OrderTabs activeTab={activeTab} onTabChange={setActiveTab} />
+      <OrderTabs activeTab={activeTab} onTabChange={(t) => setActiveTab(t as ShipmentStatus)} />
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-red-700 text-sm">
@@ -68,8 +102,22 @@ export default function OrdersPage() {
         orders={orders}
         loading={loading}
         activeTab={activeTab}
-        onAction={handleStatusChange}
+        onAdvance={handleAdvance}
+        onCancel={handleCancel}
       />
+
+      {hasMore && (
+        <div className="flex justify-center mt-6">
+          <button
+            type="button"
+            onClick={() => fetchPage(activeTab, nextCursor, true)}
+            disabled={loadingMore}
+            className="px-5 py-2.5 rounded-lg border border-[var(--vp-border)] bg-white text-sm font-medium text-[var(--foreground)] hover:bg-[var(--background)] transition-colors disabled:opacity-60"
+          >
+            {loadingMore ? "Cargando..." : "Cargar más"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

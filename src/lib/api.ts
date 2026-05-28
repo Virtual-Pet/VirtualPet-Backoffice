@@ -1,6 +1,14 @@
+import type { Problem, ProblemFieldError } from "@/lib/types";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
-export type ApiError = { message: string; status: number };
+export interface ApiError {
+  message: string;
+  status: number;
+  title?: string;
+  detail?: string;
+  errors?: ProblemFieldError[];
+}
 
 export async function api<T>(
   path: string,
@@ -13,14 +21,36 @@ export async function api<T>(
   if (cartSession) headers.set("X-Cart-Session", cartSession);
 
   const res = await fetch(`${API_URL}${path}`, { ...fetchOptions, headers, cache: "no-store" });
+
   if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw { message: body.message ?? res.statusText, status: res.status } as ApiError;
+    const contentType = res.headers.get("content-type") ?? "";
+    const isProblem = contentType.includes("application/problem+json");
+    const body = await res.json().catch(() => ({} as Record<string, unknown>));
+
+    if (isProblem) {
+      const problem = body as Problem;
+      const message = problem.detail ?? problem.title ?? res.statusText;
+      throw {
+        message,
+        status: res.status,
+        title: problem.title,
+        detail: problem.detail,
+        errors: problem.errors,
+      } satisfies ApiError;
+    }
+
+    const fallback = body as { message?: string };
+    throw {
+      message: fallback.message ?? res.statusText,
+      status: res.status,
+    } satisfies ApiError;
   }
+
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 
-export function formatPrice(value: number) {
-  return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(value);
+export function formatPrice(value: number | string) {
+  const numeric = typeof value === "string" ? Number(value) : value;
+  return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(numeric);
 }
