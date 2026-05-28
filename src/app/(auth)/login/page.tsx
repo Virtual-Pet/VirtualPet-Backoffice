@@ -27,13 +27,8 @@ export default function ManagerLoginPage() {
     setError("");
     setIsSubmitting(true);
     try {
-      // Toda la magia pasa acá adentro
-      const shouldChangePassword = await login(email, password);
-      if (shouldChangePassword) {
-        router.push("/change-password");
-      } else {
-        router.push("/orders");
-      }
+      await login(email, password);
+      router.push("/orders");
     } catch {
       setError("Credenciales inválidas. Verificá tu usuario y contraseña.");
     } finally {

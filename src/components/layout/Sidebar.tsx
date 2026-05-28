@@ -11,9 +11,9 @@ export default function Sidebar() {
   const { user, logout } = useAuth();
 
   const navItems = [
-    { href: "/orders", label: "Pedidos", icon: "📋", roles: ["ROLE_ADMIN", "ROLE_EMPLOYEE"] },
-    { href: "/employees", label: "Empleados", icon: "👥", roles: ["ROLE_ADMIN"] },
-    { href: "/profile", label: "Mi Perfil", icon: "⚙️", roles: ["ROLE_ADMIN", "ROLE_EMPLOYEE"] },
+    { href: "/orders", label: "Pedidos", icon: "📋", roles: ["ADMIN", "EMPLOYEE"] },
+    { href: "/employees", label: "Empleados", icon: "👥", roles: ["ADMIN"] },
+    { href: "/profile", label: "Mi Perfil", icon: "⚙️", roles: ["ADMIN", "EMPLOYEE"] },
   ];
 
   return (
@@ -32,7 +32,7 @@ export default function Sidebar() {
         <div className="px-6 py-4 border-b border-[var(--vp-primary)] bg-black/10">
           <p className="text-xs text-white/60 mb-0.5">Operario</p>
           <p className="text-sm font-medium text-white/90 truncate">
-            {user.name} {user.lastname}
+            {user.firstName} {user.lastName}
           </p>
         </div>
       )}

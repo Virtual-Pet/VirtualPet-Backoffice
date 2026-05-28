@@ -1,33 +1,58 @@
 import { api } from "@/lib/api";
-import { LoginResponse } from "@/lib/auth.types"; // Asumiendo que tenés estos tipos exportados
+import type { AuthTokens, User } from "@/lib/auth.types";
+
+interface RefreshResponse {
+  accessToken: string;
+  tokenType: string;
+  expiresIn: number;
+}
 
 export const authService = {
-  async login(email: string, password: string): Promise<LoginResponse> {
-    return api<LoginResponse>("/api/v1/auth/login", {
+  async login(email: string, password: string): Promise<AuthTokens> {
+    return api<AuthTokens>("/api/v1/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     });
   },
 
-  async refresh(token: string): Promise<LoginResponse> {
-    return api<LoginResponse>("/api/v1/auth/refresh", {
+  async refresh(refreshToken: string): Promise<RefreshResponse> {
+    return api<RefreshResponse>("/api/v1/auth/refresh", {
       method: "POST",
-      token, // Lo mandamos en la cabecera usando tu wrapper api()
+      body: JSON.stringify({ refreshToken }),
     });
   },
 
-  async forgotPassword(email: string): Promise<{ message: string }> {
-    return api<{ message: string }>("/api/v1/auth/forgot-password", {
+  async logout(refreshToken: string, token: string): Promise<void> {
+    await api<void>("/api/v1/auth/logout", {
       method: "POST",
-      body: JSON.stringify({ email }),
+      token,
+      body: JSON.stringify({ refreshToken }),
     });
   },
 
-  async changePassword({ currentPassword, newPassword }: { currentPassword: string; newPassword: string }, token: string): Promise<{ message: string }> {
-    return api<{ message: string }>("/api/v1/auth/password/change", {
+  async changePassword(
+    { currentPassword, newPassword }: { currentPassword: string; newPassword: string },
+    token: string
+  ): Promise<void> {
+    await api<void>("/api/v1/auth/password/change", {
       method: "POST",
-      token, // JWT actual del usuario que está forzado a cambiar la clave
+      token,
       body: JSON.stringify({ currentPassword, newPassword }),
+    });
+  },
+
+  async getMe(token: string): Promise<User> {
+    return api<User>("/api/v1/auth/me", { method: "GET", token });
+  },
+
+  async updateMe(
+    patch: { firstName?: string; lastName?: string },
+    token: string
+  ): Promise<User> {
+    return api<User>("/api/v1/auth/me", {
+      method: "PATCH",
+      token,
+      body: JSON.stringify(patch),
     });
   },
 };
