@@ -20,7 +20,12 @@ export async function api<T>(
   if (token) headers.set("Authorization", `Bearer ${token}`);
   if (cartSession) headers.set("X-Cart-Session", cartSession);
 
-  const res = await fetch(`${API_URL}${path}`, { ...fetchOptions, headers, cache: "no-store" });
+  let url = `${API_URL}${path}`;
+  if (API_URL.endsWith("/api/v1") && path.startsWith("/api/v1")) {
+    url = `${API_URL}${path.substring(7)}`;
+  }
+  const res = await fetch(url, { ...fetchOptions, headers, cache: "no-store" });
+
 
   if (!res.ok) {
     const contentType = res.headers.get("content-type") ?? "";
