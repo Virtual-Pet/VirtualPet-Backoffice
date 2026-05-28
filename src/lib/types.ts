@@ -25,7 +25,9 @@ export interface ShipmentSummary {
   contactName: string | null;
   contactEmail: string | null;
   total: Money;
+  shippingAddress?: Address;
 }
+
 
 export interface ShipmentStatusHistoryEntry {
   status: ShipmentStatus;

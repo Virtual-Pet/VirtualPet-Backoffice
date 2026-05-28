@@ -92,7 +92,13 @@ export function OrderTable({
                 <p className="text-xs text-[var(--vp-muted)] m-0 mt-0.5">
                   {order.contactEmail ?? "—"}
                 </p>
+                {order.shippingAddress && (
+                  <p className="text-xs text-slate-500 m-0 mt-1 italic font-semibold">
+                    📍 {order.shippingAddress.addressLine}, {order.shippingAddress.city}
+                  </p>
+                )}
               </td>
+
               <td className="px-5 py-4 font-bold text-[var(--foreground)]">
                 {formatPrice(order.total)}
               </td>
