@@ -11,12 +11,12 @@ const NEXT_STATUS: Partial<
   CONFIRMED: {
     label: "Marcar como Preparado",
     next: "PREPARED",
-    colorClass: "bg-purple-600 hover:bg-purple-700",
+    colorClass: "bg-violet-600 hover:bg-violet-700",
   },
   PREPARED: {
     label: "Enviar",
     next: "IN_TRANSIT",
-    colorClass: "bg-orange-500 hover:bg-orange-600",
+    colorClass: "bg-amber-500 hover:bg-amber-600",
   },
   IN_TRANSIT: {
     label: "Confirmar entrega",
@@ -33,6 +33,7 @@ interface OrderTableProps {
   activeTab: ShipmentStatus;
   onAdvance: (shipmentId: string, nextStatus: AdvanceTarget) => void;
   onCancel: (orderId: string) => void;
+  onViewDetail: (orderId: string) => void;
 }
 
 export function OrderTable({
@@ -41,68 +42,80 @@ export function OrderTable({
   activeTab,
   onAdvance,
   onCancel,
+  onViewDetail,
 }: OrderTableProps) {
   const nextAction = NEXT_STATUS[activeTab];
   const canCancel = CAN_CANCEL.has(activeTab);
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl border border-[var(--vp-border)] p-12 text-center text-[var(--vp-muted)]">
-        Cargando pedidos...
+      <div className="bg-white rounded-2xl border border-[var(--vp-border)] p-12 text-center text-[var(--vp-muted)]"
+        style={{ boxShadow: "var(--vp-shadow-sm)" }}>
+        <div className="inline-block w-5 h-5 border-2 border-[var(--vp-primary)] border-t-transparent rounded-full animate-spin mb-3" />
+        <p className="text-sm">Cargando pedidos...</p>
       </div>
     );
   }
 
   if (orders.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-[var(--vp-border)] p-16 text-center text-[var(--vp-muted)]">
-        <div className="text-4xl mb-3">✅</div>
-        <p className="font-medium text-[var(--foreground)]">No hay pedidos en este estado</p>
+      <div className="bg-white rounded-2xl border border-[var(--vp-border)] p-16 text-center"
+        style={{ boxShadow: "var(--vp-shadow-sm)" }}>
+        <div className="w-12 h-12 rounded-full bg-[var(--vp-primary-light)] flex items-center justify-center mx-auto mb-4">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--vp-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <p className="font-semibold text-slate-700">No hay pedidos en este estado</p>
+        <p className="text-sm text-[var(--vp-muted)] mt-1">Todos al día por aquí</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-[var(--vp-border)] overflow-hidden shadow-sm">
+    <div className="bg-white rounded-2xl border border-[var(--vp-border)] overflow-hidden"
+      style={{ boxShadow: "var(--vp-shadow)" }}>
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="bg-[var(--background)] border-b border-[var(--vp-border)] text-xs uppercase tracking-wide text-[var(--vp-muted)] font-semibold">
-            <th className="px-5 py-4">Pedido</th>
-            <th className="px-5 py-4">Cliente</th>
-            <th className="px-5 py-4">Total</th>
-            <th className="px-5 py-4">Actualizado</th>
-            <th className="px-5 py-4">Acciones</th>
+          <tr className="border-b border-[var(--vp-border)] text-xs uppercase tracking-wider text-[var(--vp-muted)] font-semibold"
+            style={{ background: "var(--background)" }}>
+            <th className="px-6 py-4">Pedido</th>
+            <th className="px-6 py-4">Cliente</th>
+            <th className="px-6 py-4">Total</th>
+            <th className="px-6 py-4">Actualizado</th>
+            <th className="px-6 py-4">Acciones</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-[var(--vp-border)] text-sm">
           {orders.map((order) => (
             <tr
               key={order.shipmentId}
-              className="hover:bg-[var(--background)] transition-colors"
+              className="hover:bg-slate-50/60 transition-colors"
             >
-              <td className="px-5 py-4">
-                <span className="font-mono font-bold text-[var(--foreground)]">
+              <td className="px-6 py-4">
+                <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
                   #{order.orderId.slice(0, 8).toUpperCase()}
                 </span>
               </td>
-              <td className="px-5 py-4">
-                <p className="font-medium text-[var(--foreground)] m-0">
+              <td className="px-6 py-4">
+                <p className="font-semibold text-slate-800 m-0">
                   {order.contactName ?? "—"}
                 </p>
                 <p className="text-xs text-[var(--vp-muted)] m-0 mt-0.5">
                   {order.contactEmail ?? "—"}
                 </p>
                 {order.shippingAddress && (
-                  <p className="text-xs text-slate-500 m-0 mt-1 italic font-semibold">
-                    📍 {order.shippingAddress.addressLine}, {order.shippingAddress.city}
+                  <p className="text-xs text-slate-400 m-0 mt-1">
+                    {order.shippingAddress.addressLine}, {order.shippingAddress.city}
                   </p>
                 )}
               </td>
-
-              <td className="px-5 py-4 font-bold text-[var(--foreground)]">
-                {formatPrice(order.total)}
+              <td className="px-6 py-4">
+                <span className="font-bold text-slate-800">
+                  {formatPrice(order.total)}
+                </span>
               </td>
-              <td className="px-5 py-4 text-[var(--vp-muted)]">
+              <td className="px-6 py-4 text-[var(--vp-muted)] text-xs">
                 {order.updatedAt
                   ? new Date(order.updatedAt).toLocaleString("es-AR", {
                       day: "2-digit",
@@ -112,12 +125,20 @@ export function OrderTable({
                     })
                   : "—"}
               </td>
-              <td className="px-5 py-4">
+              <td className="px-6 py-4">
                 <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => onViewDetail(order.orderId)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border border-slate-200 bg-white hover:bg-slate-50 text-slate-600"
+                    style={{ boxShadow: "var(--vp-shadow-sm)" }}
+                  >
+                    Ver detalle
+                  </button>
                   {nextAction && (
                     <button
                       onClick={() => onAdvance(order.shipmentId, nextAction.next)}
-                      className={`px-4 py-2 rounded-lg text-white font-semibold text-xs transition-colors shadow-sm ${nextAction.colorClass}`}
+                      className={`px-3 py-1.5 rounded-lg text-white text-xs font-semibold transition-all ${nextAction.colorClass}`}
+                      style={{ boxShadow: "var(--vp-shadow-sm)" }}
                     >
                       {nextAction.label}
                     </button>
@@ -125,7 +146,8 @@ export function OrderTable({
                   {canCancel && (
                     <button
                       onClick={() => onCancel(order.orderId)}
-                      className="px-4 py-2 rounded-lg text-white font-semibold text-xs transition-colors shadow-sm bg-red-600 hover:bg-red-700"
+                      className="px-3 py-1.5 rounded-lg text-white text-xs font-semibold transition-all bg-red-500 hover:bg-red-600"
+                      style={{ boxShadow: "var(--vp-shadow-sm)" }}
                     >
                       Cancelar
                     </button>

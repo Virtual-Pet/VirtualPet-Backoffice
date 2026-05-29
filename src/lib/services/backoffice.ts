@@ -2,6 +2,7 @@ import { api } from "@/lib/api";
 import type {
   CursorPage,
   OrderCancellation,
+  OrderDetail,
   Shipment,
   ShipmentStatus,
   ShipmentSummary,
@@ -44,6 +45,10 @@ export const backofficeService = {
       token,
       body: JSON.stringify({ status: targetStatus }),
     });
+  },
+
+  async getOrder(orderId: string, token?: string): Promise<OrderDetail> {
+    return api<OrderDetail>(`/api/v1/orders/${orderId}`, { token });
   },
 
   async cancelOrder(

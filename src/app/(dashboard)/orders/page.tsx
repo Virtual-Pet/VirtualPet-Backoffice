@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { backofficeService } from "@/lib/services/backoffice";
-import type { ShipmentStatus, ShipmentSummary } from "@/lib/types";
+import type { OrderDetail, ShipmentStatus, ShipmentSummary } from "@/lib/types";
 import { OrderTabs } from "@/components/orders/OrderTabs";
 import { OrderTable } from "@/components/orders/OrderTable";
+import { OrderDetailModal } from "@/components/orders/OrderDetailModal";
 import { useAuth } from "@/context/authContext";
 import { createLogger } from "@/lib/logger";
 
@@ -20,6 +21,8 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
   const { token } = useAuth();
 
   const fetchPage = useCallback(
@@ -69,6 +72,21 @@ export default function OrdersPage() {
     }
   };
 
+  const handleViewDetail = async (orderId: string) => {
+    setDetailLoading(true);
+    try {
+      const detail = await backofficeService.getOrder(orderId, token ?? undefined);
+      setSelectedOrder(detail);
+    } catch (err) {
+      log.error("Error cargando detalle del pedido", { orderId, err });
+      alert(
+        (err as { message?: string })?.message ?? "No se pudo cargar el detalle del pedido.",
+      );
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
   const handleCancel = async (orderId: string) => {
     if (!confirm("¿Cancelar esta orden? Se repone el stock e inicia un reembolso.")) return;
     try {
@@ -100,11 +118,16 @@ export default function OrdersPage() {
 
       <OrderTable
         orders={orders}
-        loading={loading}
+        loading={loading || detailLoading}
         activeTab={activeTab}
         onAdvance={handleAdvance}
         onCancel={handleCancel}
+        onViewDetail={handleViewDetail}
       />
+
+      {selectedOrder && (
+        <OrderDetailModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
+      )}
 
       {hasMore && (
         <div className="flex justify-center mt-6">

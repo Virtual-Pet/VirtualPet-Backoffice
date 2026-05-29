@@ -55,6 +55,38 @@ export interface OrderCancellation {
   };
 }
 
+export interface OrderLineItem {
+  skuId: string;
+  productName: string;
+  sku: string;
+  quantity: number;
+  unitPrice: Money;
+  subtotal: Money;
+}
+
+export interface OrderTotals {
+  items: Money;
+  shipping: Money;
+  grandTotal: Money;
+}
+
+export interface OrderShipmentRef {
+  shipmentId: string;
+  status: ShipmentStatus;
+}
+
+export interface OrderDetail {
+  orderId: string;
+  customerId: string;
+  status: OrderStatus;
+  lineItems: OrderLineItem[];
+  totals: OrderTotals;
+  currency: string;
+  shippingAddress: Address;
+  shipment: OrderShipmentRef | null;
+  createdAt: string;
+}
+
 export interface CursorPage<T> {
   data: T[];
   limit: number;

@@ -24,9 +24,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!ready) return null;
 
   return (
-    <div className="flex max-h-screen bg-slate-50">
+    <div className="flex h-screen bg-[var(--background)] overflow-hidden">
       <Sidebar />
-      <main className="flex-1 overflow-scroll p-8">
+      <main className="flex-1 overflow-y-auto px-8 py-8">
         {children}
       </main>
     </div>
