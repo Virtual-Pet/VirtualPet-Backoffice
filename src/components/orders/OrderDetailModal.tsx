@@ -126,6 +126,21 @@ export function OrderDetailModal({ order, onClose }: OrderDetailModalProps) {
               </section>
             )}
           </div>
+
+          {/* Facturación */}
+          {order.requiresInvoice && (
+            <section className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm">
+              <p className="text-xs font-semibold uppercase tracking-wider text-amber-600 mb-2">
+                Solicitud de factura
+              </p>
+              <p className="text-slate-700">
+                Requiere factura al CUIT:{" "}
+                <span className="font-mono font-bold text-slate-900">
+                  {order.billingCuit ?? "—"}
+                </span>
+              </p>
+            </section>
+          )}
         </div>
 
         <div className="px-6 py-4 border-t border-[var(--vp-border)] flex justify-end">

@@ -93,9 +93,19 @@ export function OrderTable({
               className="hover:bg-slate-50/60 transition-colors"
             >
               <td className="px-6 py-4">
-                <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
-                  #{order.orderId.slice(0, 8).toUpperCase()}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
+                    #{order.orderId.slice(0, 8).toUpperCase()}
+                  </span>
+                  {order.billingCuit && (
+                    <span
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 uppercase tracking-wide"
+                      title={order.billingCuit}
+                    >
+                      CUIT
+                    </span>
+                  )}
+                </div>
               </td>
               <td className="px-6 py-4">
                 <p className="font-semibold text-slate-800 m-0">
@@ -126,10 +136,10 @@ export function OrderTable({
                   : "—"}
               </td>
               <td className="px-6 py-4">
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-1.5 items-center">
                   <button
                     onClick={() => onViewDetail(order.orderId)}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border border-slate-200 bg-white hover:bg-slate-50 text-slate-600"
+                    className="px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 whitespace-nowrap"
                     style={{ boxShadow: "var(--vp-shadow-sm)" }}
                   >
                     Ver detalle
@@ -137,7 +147,7 @@ export function OrderTable({
                   {nextAction && (
                     <button
                       onClick={() => onAdvance(order.shipmentId, nextAction.next)}
-                      className={`px-3 py-1.5 rounded-lg text-white text-xs font-semibold transition-all ${nextAction.colorClass}`}
+                      className={`px-2.5 py-1 rounded-lg text-white text-xs font-semibold transition-all whitespace-nowrap ${nextAction.colorClass}`}
                       style={{ boxShadow: "var(--vp-shadow-sm)" }}
                     >
                       {nextAction.label}
@@ -146,7 +156,7 @@ export function OrderTable({
                   {canCancel && (
                     <button
                       onClick={() => onCancel(order.orderId)}
-                      className="px-3 py-1.5 rounded-lg text-white text-xs font-semibold transition-all bg-red-500 hover:bg-red-600"
+                      className="px-2.5 py-1 rounded-lg text-white text-xs font-semibold transition-all bg-red-500 hover:bg-red-600 whitespace-nowrap"
                       style={{ boxShadow: "var(--vp-shadow-sm)" }}
                     >
                       Cancelar

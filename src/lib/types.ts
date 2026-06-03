@@ -26,6 +26,8 @@ export interface ShipmentSummary {
   contactEmail: string | null;
   total: Money;
   shippingAddress?: Address;
+  requiresInvoice?: boolean;
+  billingCuit?: string;
 }
 
 
@@ -85,6 +87,8 @@ export interface OrderDetail {
   shippingAddress: Address;
   shipment: OrderShipmentRef | null;
   createdAt: string;
+  requiresInvoice: boolean;
+  billingCuit?: string;
 }
 
 export interface CursorPage<T> {
