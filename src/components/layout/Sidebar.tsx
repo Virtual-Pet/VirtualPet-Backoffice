@@ -50,29 +50,38 @@ export default function Sidebar() {
     : "?";
 
   return (
-    <aside className="w-64 flex-shrink-0 flex flex-col min-h-screen"
-      style={{ background: "var(--vp-primary-dark)" }}>
-
+    <aside
+      className="w-64 shrink-0 flex flex-col min-h-screen"
+      style={{ background: "var(--vp-primary-dark)" }}
+    >
       {/* Logo */}
       <div className="px-6 py-5 flex items-center gap-3 border-b border-white/10">
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ background: "var(--vp-accent)" }}>
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+          style={{ background: "var(--vp-accent)" }}
+        >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" />
           </svg>
         </div>
         <div>
-          <p className="text-white font-semibold text-sm tracking-tight m-0">Virtual Pet</p>
+          <p className="text-white font-semibold text-sm tracking-tight m-0">
+            Virtual Pet
+          </p>
           <p className="text-white/40 text-xs m-0">Backoffice</p>
         </div>
       </div>
 
       {/* User info */}
       {user && (
-        <div className="px-4 py-4 mx-3 mt-4 rounded-xl flex items-center gap-3"
-          style={{ background: "rgba(255,255,255,0.07)" }}>
-          <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold text-white"
-            style={{ background: "var(--vp-accent)" }}>
+        <div
+          className="px-4 py-4 mx-3 mt-4 rounded-xl flex items-center gap-3"
+          style={{ background: "rgba(255,255,255,0.07)" }}
+        >
+          <div
+            className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-bold text-white"
+            style={{ background: "var(--vp-accent)" }}
+          >
             {initials}
           </div>
           <div className="min-w-0">
@@ -113,7 +122,7 @@ export default function Sidebar() {
       <div className="px-3 py-5 border-t border-white/10">
         <button
           onClick={logout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:text-white hover:bg-white/10 transition-all"
+          className="w-full flex items-center cursor-pointer bg-red-500  gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white hover:opacity-80 transition-all"
         >
           <IconLogout />
           Cerrar sesión
