@@ -28,3 +28,9 @@ export interface RegisterEmployeeRequest {
   firstName: string;
   lastName: string;
 }
+
+export interface RegisterRiderRequest extends RegisterEmployeeRequest {
+  phone: string;
+  vehicleType: "MOTO" | "BICI" | "CAMIONETA" | "AUTO";
+  licensePlate?: string;
+}

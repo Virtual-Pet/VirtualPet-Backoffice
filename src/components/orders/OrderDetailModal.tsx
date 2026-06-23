@@ -15,12 +15,12 @@ export function OrderDetailModal({ order, onClose }: OrderDetailModalProps) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-[var(--vp-border)]"
+        className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-(--vp-border)"
         style={{ boxShadow: "var(--vp-shadow-lg)" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--vp-border)]">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-(--vp-border)">
           <div>
             <div className="flex items-center gap-3">
               <h2 className="text-base font-bold text-slate-900 m-0">Detalle del pedido</h2>
@@ -56,10 +56,10 @@ export function OrderDetailModal({ order, onClose }: OrderDetailModalProps) {
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
               Productos a preparar
             </p>
-            <div className="rounded-xl border border-[var(--vp-border)] overflow-hidden">
+            <div className="rounded-xl border border-(--vp-border) overflow-hidden">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr className="border-b border-[var(--vp-border)] text-xs text-slate-400 font-semibold uppercase tracking-wider"
+                  <tr className="border-b border-(--vp-border) text-xs text-slate-400 font-semibold uppercase tracking-wider"
                     style={{ background: "var(--background)" }}>
                     <th className="px-4 py-3">Producto</th>
                     <th className="px-4 py-3 text-center">Cant.</th>
@@ -67,7 +67,7 @@ export function OrderDetailModal({ order, onClose }: OrderDetailModalProps) {
                     <th className="px-4 py-3 text-right">Subtotal</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--vp-border)]">
+                <tbody className="divide-y divide-(--vp-border)">
                   {order.lineItems.map((item) => (
                     <tr key={item.skuId} className="hover:bg-slate-50/60 transition-colors">
                       <td className="px-4 py-3.5">
@@ -75,7 +75,7 @@ export function OrderDetailModal({ order, onClose }: OrderDetailModalProps) {
                         <p className="text-xs text-slate-400 font-mono mt-0.5">{item.sku}</p>
                       </td>
                       <td className="px-4 py-3.5 text-center">
-                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[var(--vp-primary-light)] font-bold text-[var(--vp-primary)] text-sm">
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-(--vp-primary-light) font-bold text-(--vp-primary) text-sm">
                           {item.quantity}
                         </span>
                       </td>
@@ -95,7 +95,7 @@ export function OrderDetailModal({ order, onClose }: OrderDetailModalProps) {
           {/* Totales + Dirección en grid */}
           <div className="grid grid-cols-2 gap-4">
             {/* Totales */}
-            <section className="rounded-xl border border-[var(--vp-border)] px-5 py-4 space-y-2.5 text-sm">
+            <section className="rounded-xl border border-(--vp-border) px-5 py-4 space-y-2.5 text-sm">
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Resumen</p>
               <div className="flex justify-between text-slate-500">
                 <span>Productos</span>
@@ -105,7 +105,7 @@ export function OrderDetailModal({ order, onClose }: OrderDetailModalProps) {
                 <span>Envío</span>
                 <span>{formatPrice(order.totals.shipping)}</span>
               </div>
-              <div className="flex justify-between font-bold text-slate-900 pt-2 border-t border-[var(--vp-border)]">
+              <div className="flex justify-between font-bold text-slate-900 pt-2 border-t border-(--vp-border)">
                 <span>Total</span>
                 <span>{formatPrice(order.totals.grandTotal)}</span>
               </div>
@@ -113,7 +113,7 @@ export function OrderDetailModal({ order, onClose }: OrderDetailModalProps) {
 
             {/* Dirección */}
             {order.shippingAddress && (
-              <section className="rounded-xl border border-[var(--vp-border)] px-5 py-4 text-sm">
+              <section className="rounded-xl border border-(--vp-border) px-5 py-4 text-sm">
                 <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Entrega</p>
                 <p className="font-semibold text-slate-800">{order.shippingAddress.addressLine}</p>
                 <p className="text-slate-500 mt-1">
@@ -143,7 +143,7 @@ export function OrderDetailModal({ order, onClose }: OrderDetailModalProps) {
           )}
         </div>
 
-        <div className="px-6 py-4 border-t border-[var(--vp-border)] flex justify-end">
+        <div className="px-6 py-4 border-t border-(--vp-border) flex justify-end">
           <button
             onClick={onClose}
             className="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm transition-colors"

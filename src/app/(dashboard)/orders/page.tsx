@@ -135,7 +135,7 @@ export default function OrdersPage() {
             type="button"
             onClick={() => fetchPage(activeTab, nextCursor, true)}
             disabled={loadingMore}
-            className="px-5 py-2.5 rounded-lg border border-[var(--vp-border)] bg-white text-sm font-medium text-[var(--foreground)] hover:bg-[var(--background)] transition-colors disabled:opacity-60"
+            className="px-5 py-2.5 rounded-lg border border-(--vp-border) bg-white text-sm font-medium text-foreground hover:bg-background transition-colors disabled:opacity-60"
           >
             {loadingMore ? "Cargando..." : "Cargar más"}
           </button>
