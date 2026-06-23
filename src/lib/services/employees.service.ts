@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import type { RegisterEmployeeRequest, UserSummary } from "@/lib/auth.types";
+import type { RegisterEmployeeRequest, RegisterRiderRequest, UserSummary } from "@/lib/auth.types";
 
 export const employeesService = {
   async registerEmployee(
@@ -12,6 +12,17 @@ export const employeesService = {
       body: JSON.stringify(data),
     });
   },
+
+  async registerRider(
+    data: RegisterRiderRequest,
+    token:string
+  ): Promise<UserSummary> {
+    return api<UserSummary>("", {
+      method: "POST",
+      token,
+      body: JSON.stringify(data),
+    });
+  }
 };
 
 export default employeesService;
