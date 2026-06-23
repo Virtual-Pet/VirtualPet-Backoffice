@@ -1,3 +1,0 @@
-tienda.virtualpet.dedyn.io {
-    reverse_proxy frontend-web:3000
-}
