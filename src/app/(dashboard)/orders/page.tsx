@@ -1,17 +1,24 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { backofficeService } from "@/lib/services/backoffice";
 import type { OrderDetail, ShipmentStatus, ShipmentSummary } from "@/lib/types";
 import { OrderTabs } from "@/components/orders/OrderTabs";
 import { OrderTable } from "@/components/orders/OrderTable";
 import { OrderDetailModal } from "@/components/orders/OrderDetailModal";
+import { useShipmentEvents } from "@/hooks/useShipmentEvents";
 import { useAuth } from "@/context/authContext";
 import { createLogger } from "@/lib/logger";
 
 const log = createLogger("orders-page");
 
-type AdvanceTarget = "PREPARED" | "IN_TRANSIT" | "DELIVERED";
+type AdvanceTarget = "PREPARED" | "ASSIGNED" | "DELIVERED";
+
+/** The "Listos para enviar" (PREPARED) tab also holds RETURNED shipments. */
+function tabMatchesStatus(tab: ShipmentStatus, status: ShipmentStatus): boolean {
+  if (tab === "PREPARED") return status === "PREPARED" || status === "RETURNED";
+  return tab === status;
+}
 
 export default function OrdersPage() {
   const [activeTab, setActiveTab] = useState<ShipmentStatus>("CONFIRMED");
@@ -26,28 +33,55 @@ export default function OrdersPage() {
   const { token } = useAuth();
 
   const fetchPage = useCallback(
-    async (status: ShipmentStatus, cursor: string | null, append: boolean) => {
-      if (append) setLoadingMore(true);
-      else setLoading(true);
-      setError(null);
+    async (
+      status: ShipmentStatus,
+      cursor: string | null,
+      append: boolean,
+      // Silent = background refresh from a live event: update rows in place
+      // without flashing the loading spinner or clearing the list on error.
+      silent = false,
+    ) => {
+      if (!silent) {
+        if (append) setLoadingMore(true);
+        else setLoading(true);
+        setError(null);
+      }
       try {
-        const page = await backofficeService.listShipments(
-          { status, cursor: cursor ?? undefined },
-          token ?? undefined,
-        );
-        setOrders((prev) => (append ? [...prev, ...page.data] : page.data));
-        setNextCursor(page.nextCursor);
-        setHasMore(page.hasMore);
+        if (status === "PREPARED") {
+          // "Listos para enviar" shows both PREPARED and RETURNED shipments.
+          // Pagination is not supported across the combined view.
+          const [prepared, returned] = await Promise.all([
+            backofficeService.listShipments({ status: "PREPARED" }, token ?? undefined),
+            backofficeService.listShipments({ status: "RETURNED" }, token ?? undefined),
+          ]);
+          const merged = [...prepared.data, ...returned.data].sort(
+            (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+          );
+          setOrders((prev) => (append ? [...prev, ...merged] : merged));
+          setNextCursor(null);
+          setHasMore(false);
+        } else {
+          const page = await backofficeService.listShipments(
+            { status, cursor: cursor ?? undefined },
+            token ?? undefined,
+          );
+          setOrders((prev) => (append ? [...prev, ...page.data] : page.data));
+          setNextCursor(page.nextCursor);
+          setHasMore(page.hasMore);
+        }
       } catch (err) {
         log.error("Error cargando pedidos", err);
+        if (silent) return; // keep the current list on a failed background refresh
         if (!append) setOrders([]);
         setError(
           (err as { message?: string })?.message ??
             "No se pudieron cargar los pedidos. Verificá que el backend esté corriendo.",
         );
       } finally {
-        if (append) setLoadingMore(false);
-        else setLoading(false);
+        if (!silent) {
+          if (append) setLoadingMore(false);
+          else setLoading(false);
+        }
       }
     },
     [token],
@@ -58,6 +92,47 @@ export default function OrdersPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPage(activeTab, null, false);
   }, [activeTab, token, fetchPage]);
+
+  // Debounced re-fetch of the active tab — used when a live event brings a
+  // shipment INTO this tab (the event lacks the full row data we need).
+  const resyncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scheduleResync = useCallback(() => {
+    if (resyncTimer.current) clearTimeout(resyncTimer.current);
+    resyncTimer.current = setTimeout(() => fetchPage(activeTab, null, false, true), 400);
+  }, [activeTab, fetchPage]);
+
+  useEffect(() => () => {
+    if (resyncTimer.current) clearTimeout(resyncTimer.current);
+  }, []);
+
+  // Live shipment status updates over SSE.
+  const hasConnectedRef = useRef(false);
+  useShipmentEvents(token, {
+    onConnected: () => {
+      // On *re*connect, re-fetch to recover any events missed during the gap.
+      if (hasConnectedRef.current) scheduleResync();
+      hasConnectedRef.current = true;
+    },
+    onUpdate: (evt) => {
+      const matches = tabMatchesStatus(activeTab, evt.status);
+      setOrders((prev) => {
+        const idx = prev.findIndex((o) => o.shipmentId === evt.shipmentId);
+        if (idx === -1) {
+          // Not currently listed; if it now belongs here, pull the full row.
+          if (matches) scheduleResync();
+          return prev;
+        }
+        if (!matches) {
+          // Moved to a different status → drop it from this tab.
+          return prev.filter((o) => o.shipmentId !== evt.shipmentId);
+        }
+        // Still in this tab (e.g. PREPARED → RETURNED) → update in place.
+        const next = [...prev];
+        next[idx] = { ...next[idx], status: evt.status, updatedAt: evt.updatedAt };
+        return next;
+      });
+    },
+  });
 
   const handleAdvance = async (shipmentId: string, nextStatus: AdvanceTarget) => {
     try {

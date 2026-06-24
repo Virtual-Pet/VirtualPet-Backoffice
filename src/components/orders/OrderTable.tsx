@@ -3,7 +3,7 @@
 import type { ShipmentStatus, ShipmentSummary } from "@/lib/types";
 import { formatPrice } from "@/lib/api";
 
-type AdvanceTarget = "PREPARED" | "IN_TRANSIT" | "DELIVERED";
+type AdvanceTarget = "PREPARED" | "ASSIGNED" | "DELIVERED";
 
 const NEXT_STATUS: Partial<
   Record<ShipmentStatus, { label: string; next: AdvanceTarget; colorClass: string }>
@@ -15,17 +15,17 @@ const NEXT_STATUS: Partial<
   },
   PREPARED: {
     label: "Enviar",
-    next: "IN_TRANSIT",
+    next: "ASSIGNED",
     colorClass: "bg-amber-500 hover:bg-amber-600",
   },
-  IN_TRANSIT: {
+  ASSIGNED: {
     label: "Confirmar entrega",
     next: "DELIVERED",
     colorClass: "bg-[var(--vp-primary)] hover:bg-[var(--vp-primary-dark)]",
   },
 };
 
-const CAN_CANCEL: ReadonlySet<ShipmentStatus> = new Set(["CONFIRMED", "PREPARED"]);
+const CAN_CANCEL: ReadonlySet<ShipmentStatus> = new Set(["CONFIRMED", "PREPARED", "ASSIGNED", "RETURNED"]);
 
 interface OrderTableProps {
   orders: ShipmentSummary[];
@@ -85,7 +85,7 @@ export function OrderTable({
           >
             <th className="px-6 py-4">Pedido</th>
             <th className="px-6 py-4">Cliente</th>
-            {["IN_TRANSIT", "DELIVERED"].includes(activeTab) && (
+            {["ASSIGNED", "DELIVERED"].includes(activeTab) && (
               <th className="px-6 py-4">Repartidor</th>
             )}
             <th className="px-6 py-4">Total</th>
@@ -100,10 +100,15 @@ export function OrderTable({
               className="hover:bg-slate-50/60 transition-colors"
             >
               <td className="px-6 py-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
-                    #{order.orderId.slice(0, 8).toUpperCase()}
+                    #{order.orderId.slice(-8).toUpperCase()}
                   </span>
+                  {order.status === "RETURNED" && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 border border-orange-200 uppercase tracking-wide">
+                      Retornado
+                    </span>
+                  )}
                   {order.billingCuit && (
                     <span
                       className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 uppercase tracking-wide"
@@ -128,17 +133,19 @@ export function OrderTable({
                   </p>
                 )}
               </td>
-              {["IN_TRANSIT", "DELIVERED"].includes(activeTab) && (
-                <td>
-                  <p className="font-semibold text-slate-800 m-0">
-                    {"nombre de repartidor"}
-                  </p>
-                  <p className="text-xs text-(--vp-muted) m-0 mt-0.5">
-                    {"apellido"}
-                  </p>
-                  <p className="text-xs text-slate-400 m-0 mt-1">
-                    {"Telefono contacto, vehiculo"}
-                  </p>
+              {["ASSIGNED", "DELIVERED"].includes(activeTab) && (
+                <td className="px-6 py-4 text-sm">
+                  {order.rider ? (
+                    <>
+                      <p className="font-semibold text-slate-800 m-0">
+                        {order.rider.name} {order.rider.lastname}
+                      </p>
+                      <p className="text-xs text-(--vp-muted) m-0 mt-0.5">{order.rider.phone}</p>
+                      <p className="text-xs text-slate-400 m-0 mt-1">{order.rider.vehicleType}</p>
+                    </>
+                  ) : (
+                    <span className="text-(--vp-muted)">—</span>
+                  )}
                 </td>
               )}
               <td className="px-6 py-4">

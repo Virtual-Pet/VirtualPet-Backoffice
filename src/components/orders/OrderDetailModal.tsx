@@ -127,6 +127,24 @@ export function OrderDetailModal({ order, onClose }: OrderDetailModalProps) {
             )}
           </div>
 
+          {/* Repartidor */}
+          {order.rider && (
+            <section className="rounded-xl border border-(--vp-border) px-5 py-4 text-sm">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Repartidor</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-slate-800">
+                    {order.rider.name} {order.rider.lastname}
+                  </p>
+                  <p className="text-slate-500 mt-1">{order.rider.phone}</p>
+                </div>
+                <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 uppercase">
+                  {order.rider.vehicleType}
+                </span>
+              </div>
+            </section>
+          )}
+
           {/* Facturación */}
           {order.requiresInvoice && (
             <section className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm">
