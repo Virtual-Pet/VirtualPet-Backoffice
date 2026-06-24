@@ -3,7 +3,8 @@ export type Money = string;
 export type ShipmentStatus =
   | "CONFIRMED"
   | "PREPARED"
-  | "IN_TRANSIT"
+  | "ASSIGNED"
+  | "RETURNED"
   | "DELIVERED"
   | "CANCELLED";
 
@@ -28,6 +29,7 @@ export interface ShipmentSummary {
   shippingAddress?: Address;
   requiresInvoice?: boolean;
   billingCuit?: string;
+  rider?: Rider | null;
 }
 
 
@@ -77,6 +79,13 @@ export interface OrderShipmentRef {
   status: ShipmentStatus;
 }
 
+export interface Rider {
+  name: string;
+  lastname: string;
+  phone: string;
+  vehicleType: string;
+}
+
 export interface OrderDetail {
   orderId: string;
   customerId: string;
@@ -86,6 +95,7 @@ export interface OrderDetail {
   currency: string;
   shippingAddress: Address;
   shipment: OrderShipmentRef | null;
+  rider?: Rider | null;
   createdAt: string;
   requiresInvoice: boolean;
   billingCuit?: string;

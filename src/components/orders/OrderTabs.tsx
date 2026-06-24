@@ -1,14 +1,12 @@
 "use client";
 
-/**
- * Tabs for filtering shipments by their backend ShipmentStatus.
- * Maps directly to the ShipmentStatus enum: CONFIRMED, PREPARED, IN_TRANSIT, DELIVERED.
- */
+// PREPARED tab fetches both PREPARED and RETURNED shipments combined.
 const STATUS_TABS = [
   { key: "CONFIRMED", label: "Pendientes" },
   { key: "PREPARED", label: "Listos para enviar" },
-  { key: "IN_TRANSIT", label: "En camino" },
-  { key: "DELIVERED", label: "Completados" },
+  { key: "ASSIGNED", label: "En camino" },
+  { key: "DELIVERED", label: "Entregados" },
+  { key: "CANCELLED", label: "Cancelados" },
 ];
 
 interface OrderTabsProps {
