@@ -25,7 +25,7 @@ const NEXT_STATUS: Partial<
   },
 };
 
-const CAN_CANCEL: ReadonlySet<ShipmentStatus> = new Set(["CONFIRMED", "PREPARED", "ASSIGNED", "RETURNED"]);
+const CAN_CANCEL: ReadonlySet<ShipmentStatus> = new Set(["CONFIRMED", "PREPARED", "RETURNED"]);
 
 interface OrderTableProps {
   orders: ShipmentSummary[];
