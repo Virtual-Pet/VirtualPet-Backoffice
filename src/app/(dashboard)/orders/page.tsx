@@ -28,7 +28,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<(OrderDetail & { attempts?: number }) | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const { token } = useAuth();
 
@@ -147,11 +147,11 @@ export default function OrdersPage() {
     }
   };
 
-  const handleViewDetail = async (orderId: string) => {
+  const handleViewDetail = async (orderId: string, attempts?: number) => {
     setDetailLoading(true);
     try {
       const detail = await backofficeService.getOrder(orderId, token ?? undefined);
-      setSelectedOrder(detail);
+      setSelectedOrder({ ...detail, attempts });
     } catch (err) {
       log.error("Error cargando detalle del pedido", { orderId, err });
       alert(

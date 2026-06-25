@@ -4,7 +4,7 @@ import { formatPrice } from "@/lib/api";
 import type { OrderDetail } from "@/lib/types";
 
 interface OrderDetailModalProps {
-  order: OrderDetail;
+  order: OrderDetail & { attempts?: number };
   onClose: () => void;
 }
 
@@ -138,9 +138,16 @@ export function OrderDetailModal({ order, onClose }: OrderDetailModalProps) {
                   </p>
                   <p className="text-slate-500 mt-1">{order.rider.phone}</p>
                 </div>
-                <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 uppercase">
-                  {order.rider.vehicleType}
-                </span>
+                <div className="flex items-center gap-2">
+                  {order.attempts != null && order.attempts > 0 && (
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${order.attempts >= 3 ? "bg-red-100 text-red-600" : "bg-amber-100 text-amber-600"}`}>
+                      {order.attempts}/3 intentos
+                    </span>
+                  )}
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 uppercase">
+                    {order.rider.vehicleType}
+                  </span>
+                </div>
               </div>
             </section>
           )}

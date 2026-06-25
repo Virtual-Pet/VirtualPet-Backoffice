@@ -30,6 +30,7 @@ export interface ShipmentSummary {
   requiresInvoice?: boolean;
   billingCuit?: string;
   rider?: Rider | null;
+  attempts?: number;
 }
 
 

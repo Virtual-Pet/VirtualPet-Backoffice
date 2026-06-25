@@ -33,7 +33,7 @@ interface OrderTableProps {
   activeTab: ShipmentStatus;
   onAdvance: (shipmentId: string, nextStatus: AdvanceTarget) => void;
   onCancel: (orderId: string) => void;
-  onViewDetail: (orderId: string) => void;
+  onViewDetail: (orderId: string, attempts?: number) => void;
 }
 
 export function OrderTable({
@@ -166,7 +166,7 @@ export function OrderTable({
               <td className="px-6 py-4">
                 <div className="flex gap-1.5 items-center">
                   <button
-                    onClick={() => onViewDetail(order.orderId)}
+                    onClick={() => onViewDetail(order.orderId, order.attempts)}
                     className="px-3 py-1.5 rounded-lg text-xs cursor-pointer font-semibold transition-all border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 whitespace-nowrap"
                     style={{ boxShadow: "var(--vp-shadow-sm)" }}
                   >
